@@ -48,5 +48,37 @@ public class _01TestBuffer {
         System.out.println("limit(界限，缓冲区中可以操作数据的大小):" + buf.limit());
         System.out.println("capacity(容量，缓冲区中最大的存储数据容量，一旦声明不可改变):" + buf.capacity());
     }
+
+    @Test
+    public void test2(){
+        String str = "abcde";
+
+        // 非直接缓冲区，建立在jvm内存之上
+        ByteBuffer buf = ByteBuffer.allocate(1024);
+        buf.put(str.getBytes());
+
+        buf.flip();
+
+        byte[] dst = new byte[buf.limit()];
+        buf.get(dst,0,2);
+        System.out.println(new String(dst,0,2));
+        System.out.println("position: " + buf.position());
+
+        //mark():标记,记录当前的position位置。可以通过reset恢复到mark的位置
+        buf.mark();
+
+        buf.get(dst,2,2);
+        System.out.println(new String(dst,2,2));
+
+        //reset():恢复到mark的位置
+        buf.reset();
+        System.out.println("after reset position: " + buf.position());
+
+        //判断缓冲区中是否还有剩余数据
+        if(buf.hasRemaining()){
+            //获取缓冲区中还可以操作的数量
+            System.out.println(buf.remaining());
+        }
+    }
 }
 
