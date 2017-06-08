@@ -80,5 +80,12 @@ public class _01TestBuffer {
             System.out.println(buf.remaining());
         }
     }
+
+    @Test
+    public void test3(){
+        // 直接缓冲区，建立在物理内存上，可以提升效率
+        ByteBuffer buf = ByteBuffer.allocateDirect(1024);
+        System.out.println(buf.isDirect());
+    }
 }
 
