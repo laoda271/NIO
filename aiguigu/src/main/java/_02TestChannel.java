@@ -85,4 +85,24 @@ public class _02TestChannel {
         long end = System.currentTimeMillis();
         System.out.println("耗费时间为: " + (end - start));
     }
+
+    // 通道之间数据之间传输（直接缓冲区）547 更快了
+    @Test
+    public void test3(){
+        long start = System.currentTimeMillis();
+        FileChannel inChannel = null;
+        FileChannel outChannel = null;
+        try{
+            inChannel = FileChannel.open(Paths.get("d:/code.zip"), StandardOpenOption.READ);
+            outChannel = FileChannel.open(Paths.get("d:/code5.zip"), StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.CREATE);
+            outChannel.transferFrom(inChannel,0,inChannel.size());
+        } catch (Exception e){
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeQuietly(inChannel);
+            IOUtils.closeQuietly(outChannel);
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("耗费时间：" +  (end -start));
+    }
 }
