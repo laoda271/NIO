@@ -3,6 +3,7 @@ import org.junit.Test;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -88,21 +89,63 @@ public class _02TestChannel {
 
     // 通道之间数据之间传输（直接缓冲区）547 更快了
     @Test
-    public void test3(){
+    public void test3() {
         long start = System.currentTimeMillis();
         FileChannel inChannel = null;
         FileChannel outChannel = null;
-        try{
+        try {
             inChannel = FileChannel.open(Paths.get("d:/code.zip"), StandardOpenOption.READ);
             outChannel = FileChannel.open(Paths.get("d:/code5.zip"), StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.CREATE);
-            outChannel.transferFrom(inChannel,0,inChannel.size());
-        } catch (Exception e){
+            outChannel.transferFrom(inChannel, 0, inChannel.size());
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             IOUtils.closeQuietly(inChannel);
             IOUtils.closeQuietly(outChannel);
         }
         long end = System.currentTimeMillis();
-        System.out.println("耗费时间：" +  (end -start));
+        System.out.println("耗费时间：" + (end - start));
+    }
+
+    // 分散和聚集
+    @Test
+    public void test4() {
+
+        RandomAccessFile raf1 = null;
+        RandomAccessFile raf2 = null;
+        FileChannel inChannel = null;
+        FileChannel channel2 = null;
+        try {
+            // 1.获取通道
+            raf1 = new RandomAccessFile("d:/1.txt", "rw");
+            inChannel = raf1.getChannel();
+            // 2.分配指定大小的缓冲区
+            ByteBuffer buf1 = ByteBuffer.allocate(10);
+            ByteBuffer buf2 = ByteBuffer.allocate(1024);
+
+            //3.分散读取
+            ByteBuffer[] bufs = {buf1, buf2};
+            inChannel.read(bufs);
+
+            for(ByteBuffer byteBuffer : bufs){
+                byteBuffer.flip();
+            }
+            System.out.println(new String(bufs[0].array(),0,bufs[0].limit()));
+            System.out.println("----------------");
+            System.out.println(new String(bufs[1].array(),0,bufs[1].limit()));
+
+            // 4.聚集写入
+            raf2 = new RandomAccessFile("d:/2.txt", "rw");
+            channel2 = raf2.getChannel();
+
+            channel2.write(bufs);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeQuietly(raf1);
+            IOUtils.closeQuietly();
+        }
+
     }
 }
