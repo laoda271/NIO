@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.Scanner;
 
 /**
+ * DatagramChannel实现NIO协议的数据传输
+ *
  * Created by chenminghe on 2017/6/17.
  */
 public class _06TestNonBlockingNIO2 {
