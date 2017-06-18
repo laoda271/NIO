@@ -12,24 +12,34 @@ import java.util.Scanner;
 /**
  * Created by chenminghe on 2017/6/17.
  */
-public class TestNonBlockingNIO2 {
+public class _06TestNonBlockingNIO2 {
 
     @Test
-    public void send() throws Exception{
+    public void send() throws Exception {
         DatagramChannel dc = DatagramChannel.open();
         dc.configureBlocking(false);
 
         ByteBuffer buf = ByteBuffer.allocate(1024);
         Scanner scan = new Scanner(System.in);
-        while (scan.hasNext()){
+        while (scan.hasNext()) {
             String next = scan.next();
-            buf.put(next.getBytes());
-            buf.flip();
-            dc.send(buf,new InetSocketAddress("127.0.0.1",9898));
-            buf.clear();
+            byte[] bytes = next.getBytes();
+            int len = bytes.length;
+            int consume = 0;
+            while (consume < len) {
+                if (consume + 1024 > len) {
+                    buf.put(bytes, consume, len - consume);
+                    consume += len;
+                } else {
+                    buf.put(bytes, consume, 1024);
+                    consume += 1024;
+                }
+                buf.flip();
+                dc.send(buf, new InetSocketAddress("127.0.0.1", 9898));
+                buf.clear();
+            }
         }
         dc.close();
-
     }
 
     @Test
@@ -46,21 +56,21 @@ public class TestNonBlockingNIO2 {
         // 5.将通道注册到选择器上,并且指定监听事件
         dc.register(selector, SelectionKey.OP_READ);
 
-        ByteBuffer buf = ByteBuffer.allocate(1024);
         // 6.轮询式的获取选择器上已经“准备就绪”的事件
-        while(selector.select() > 0){
+        while (selector.select() > 0) {
 
             // 7. 获取当前选择器中所有注册的"选择键"(已就绪的监听事件)
             Iterator<SelectionKey> it = selector.selectedKeys().iterator();
 
-            while (it.hasNext()){
+            while (it.hasNext()) {
                 SelectionKey sk = it.next();
 
                 // 9.判断是什么事件准备就绪
-                if(sk.isReadable()){
+                if (sk.isReadable()) {
+                    ByteBuffer buf = ByteBuffer.allocate(1024);
                     dc.receive(buf);
                     buf.flip();
-                    System.out.println(new String(buf.array(),0,buf.limit()));
+                    System.out.print(new String(buf.array(), 0, buf.limit()));
                     buf.clear();
                 }
             }
@@ -69,7 +79,7 @@ public class TestNonBlockingNIO2 {
         }
     }
 
-    public static void main(String[] args) throws Exception{
-        new TestNonBlockingNIO2().send();
+    public static void main(String[] args) throws Exception {
+        new _06TestNonBlockingNIO2().send();
     }
 }
