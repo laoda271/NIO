@@ -5,8 +5,15 @@ import java.nio.channels.Pipe;
 
 /**
  * 管道写入和读取数据
+ * JAVA NIO管道是2个线程之间的单向数据连接
+ * Pipe有一个source通道和一个sink通道。数据会被写到sink通道，从source通道读取。
+ *             _________________________________
+ *            |             Pipe                |
+ * Thread A--->| Sink Channel-->Source Channel--|--> Thread B
+ *            |_________________________________|
  *
- * Flume框架的演化
+ *
+ *
  * Created by chenminghe on 2017/6/18.
  */
 public class _07TestPie {
